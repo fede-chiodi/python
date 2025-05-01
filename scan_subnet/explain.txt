@@ -1,0 +1,64 @@
+net_int = (network_ip[0] << 24) + (network_ip[1] << 16) + (network_ip[2] << 8) + network_ip[3]
+broadcast_int = (broadcast_ip[0] << 24) + (broadcast_ip[1] << 16) + (broadcast_ip[2] << 8) + broadcast_ip[3]
+
+CONVERSIONE A NUMERO A 32 BIT DI UN INDIRIZZO IP
+PER ESEMPIO 192.168.1.0 ---> (192 << 24) + (168 << 16) + (1 << 8) + 0 = 3232235776
+192 << 24 ---> 192 * 2^24 = 3221225472
+168 << 16 = 168 * 2^16 = 11010048
+1 << 8 = 1 * 2^8 = 256
+0
+effettua un left shift di n posizioni quante specificate, ogni volta che si usa << si esegue il valore * 2^n
+
+----------------------------------------------------------------------------------------------------------------------
+
+ip_str = ".".join(str((ip_int >> (8 * j)) & 0xFF) for j in reversed(range(4)))
+
+CONVERSIONE DI UN NUMERO INTERO NEL FOMRATO DI INDIRIZZO IP
+esempio:
+ip_int = 3232235776 (192.168.1.0)
+
+(0xFF rappresenta l'AND bitwise che è 11111111 in binario. per ottenere solo il valore di ciascun byte dopo lo shift.)
+con l'operazione AND bitwise si va ad isolare l'ultimo byte del numero convertito in binario.
+effettua un right shift (>>) di n posizioni specificate, equivale a fare --> valore / 2^n.
+
+ip_int >> (8 * 3) & 0xFF → 192 
+= (3232235776 >> 24) & 0xFF
+= (192) & 0xFF
+= 192
+
+ip_int >> (8 * 2) & 0xFF → 168
+= (3232235776 >> 16) & 0xFF
+= (49320) & 0xFF
+= 168
+
+ip_int >> (8 * 1) & 0xFF → 1 
+= (3232235776 >> 8) & 0xFF
+= (12625999) & 0xFF
+= 1
+
+ip_int >> (8 * 0) & 0xFF → 0 
+
+---------------------------------------------------------------------------------------------------
+
+Per effettuare il ping a livello di rete si utilizza specialmente il protocollo ICMP.
+percorso per ping locale in una rete IPv4
+
+ICMP (Echo request/reply, type 8/type 0)
+pc -> Echo request to target
+host raggiungibile (target) -> Echo reply to pc
+
+↓
+
+IP (routing)
+Gestisce l'instradamento del pacchetto da sorgente a destinazione.
+
+↓
+
+ARP
+essendo l'host target nella stessa rete locale si usa ARP per convertire l'IP del target nel MAC address. Necessario per il livello ethernet.
+Se l’indirizzo MAC è già in cache, non viene inviato un nuovo pacchetto ARP.
+
+↓
+
+ETHERNET (livello fisico)
+Avendo il MAC noto, il pacchetto ICMP viene incapsulato nel frame ethernet.
