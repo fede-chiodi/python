@@ -49,8 +49,11 @@ def ping_host(hosts_range):
         if ping(host):
             # print(f"Host {host} is up")
             Share.host_up_counter += 1
-            hostname = socket.gethostbyaddr(host)[0]
-            hosts_up.append((host, hostname))
+            try:
+                hostname = socket.gethostbyaddr(host)[0]
+            except socket.herror:
+                hostname = "Hostname non trovato"
+            hosts_up.append(host)
         else:
             # print(f"Host {host} is down")
             Share.host_down_counter += 1
@@ -79,6 +82,6 @@ if __name__ == "__main__":
 
     print("\n--- REPORT ---")
     print(f"\nHost attivi: {Share.host_up_counter}")
-    for host, hostname in hosts_up:
-        print(f"Host Up: {host} - ({hostname})")
+    for host in hosts_up:
+        print(f"Host Up: {host}")
     print(f"\nHost non raggiungibili: {Share.host_down_counter}")
